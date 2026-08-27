@@ -503,7 +503,7 @@
       <div class="hero-icon">⚡</div>
       <div class="hero-text">
         <h2>Top-up Digital</h2>
-        <p>Pulsa, paket data, &amp; top-up game favorit kamu.<br>Proses cepat, harga terjangkau.</p>
+        <p>Pulsa, paket data, game &amp; token listrik.<br>Proses cepat, harga terjangkau.</p>
       </div>
     </div>
 
@@ -521,7 +521,15 @@
         <span class="cat-badge new">Baru</span>
         <div class="cat-card-emoji">🎮</div>
         <div class="cat-card-title">Top-up Game</div>
-        <div class="cat-card-desc">Mobile Legends, Free Fire, PUBG, Genshin, dan game populer lainnya.</div>
+        <div class="cat-card-desc">Mobile Legends, Free Fire, dan game populer lainnya.</div>
+      </div>
+
+      <!-- PLN -->
+      <div class="cat-card" onclick="showPage('pagePLN')">
+        <span class="cat-badge new">Baru</span>
+        <div class="cat-card-emoji">⚡</div>
+        <div class="cat-card-title">Token Listrik PLN</div>
+        <div class="cat-card-desc">Beli token listrik PLN prabayar. Langsung dikirim via WA.</div>
       </div>
     </div>
 
@@ -628,7 +636,7 @@
       </button>
       <div>
         <div class="subpage-title">🎮 Top-up Game</div>
-        <div class="subpage-subtitle">Diamond, UC, & kredit game lainnya</div>
+        <div class="subpage-subtitle">Diamond & kredit game langsung dari Digiflazz</div>
       </div>
     </div>
 
@@ -636,10 +644,6 @@
       <button class="filter-btn active" data-game="all">Semua</button>
       <button class="filter-btn" data-game="mobile legends">Mobile Legends</button>
       <button class="filter-btn" data-game="free fire">Free Fire</button>
-      <button class="filter-btn" data-game="pubg">PUBG Mobile</button>
-      <button class="filter-btn" data-game="genshin">Genshin Impact</button>
-      <button class="filter-btn" data-game="honkai">Honkai Star Rail</button>
-      <button class="filter-btn" data-game="valorant">Valorant</button>
     </div>
 
     <div class="search-wrap">
@@ -653,6 +657,24 @@
       <div>Memuat produk game...</div>
     </div>
   </div><!-- /#pageGame -->
+
+  <!-- ── SUB-HALAMAN PLN ───────────────────────────────────────── -->
+  <div id="pagePLN" class="subpage">
+    <div class="subpage-header">
+      <button class="btn-sub-back" onclick="showPage('pageCat')">
+        <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
+      </button>
+      <div>
+        <div class="subpage-title">⚡ Token Listrik PLN</div>
+        <div class="subpage-subtitle">PLN Prabayar — langsung dari Digiflazz</div>
+      </div>
+    </div>
+    <div id="plnGrid" class="prod-grid"></div>
+    <div id="plnState" class="state-msg">
+      <div class="icon">⚡</div>
+      <div>Memuat produk PLN...</div>
+    </div>
+  </div><!-- /#pagePLN -->
 
 </main>
 
@@ -712,55 +734,9 @@
 <script>
   // ─── State ────────────────────────────────────────────────────
   let allGameProducts = [];
-  let activeGame      = "all";
-  let selectedProd    = null;
-
-  // ─── Navigasi antar sub-halaman ───────────────────────────────
-  function showPage(id) {
-    document.querySelectorAll(".subpage").forEach(p => p.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    window.scrollTo(0, 0);
-    if (id === "pageGame" && allGameProducts.length === 0) loadGameProducts();
-  }
-
-  // ─── Produk game statis ───────────────────────────────────────
-  const STATIC_GAMES = [
-    // Mobile Legends
-    { sku:"ml-86",   brand:"Mobile Legends", category:"Games", name:"86 Diamonds",    price:20000,  gameId:true },
-    { sku:"ml-172",  brand:"Mobile Legends", category:"Games", name:"172 Diamonds",   price:38000,  gameId:true },
-    { sku:"ml-257",  brand:"Mobile Legends", category:"Games", name:"257 Diamonds",   price:55000,  gameId:true },
-    { sku:"ml-344",  brand:"Mobile Legends", category:"Games", name:"344 Diamonds",   price:73000,  gameId:true },
-    { sku:"ml-514",  brand:"Mobile Legends", category:"Games", name:"514 Diamonds",   price:107000, gameId:true },
-    { sku:"ml-706",  brand:"Mobile Legends", category:"Games", name:"706 Diamonds",   price:145000, gameId:true },
-    { sku:"ml-1412", brand:"Mobile Legends", category:"Games", name:"1.412 Diamonds", price:285000, gameId:true },
-    { sku:"ml-2195", brand:"Mobile Legends", category:"Games", name:"2.195 Diamonds", price:435000, gameId:true },
-    // Free Fire
-    { sku:"ff-70",   brand:"Free Fire", category:"Games", name:"70 Diamond",    price:15000, gameId:true },
-    { sku:"ff-140",  brand:"Free Fire", category:"Games", name:"140 Diamond",   price:28000, gameId:true },
-    { sku:"ff-355",  brand:"Free Fire", category:"Games", name:"355 Diamond",   price:70000, gameId:true },
-    { sku:"ff-720",  brand:"Free Fire", category:"Games", name:"720 Diamond",   price:140000,gameId:true },
-    { sku:"ff-1450", brand:"Free Fire", category:"Games", name:"1.450 Diamond", price:278000,gameId:true },
-    { sku:"ff-2180", brand:"Free Fire", category:"Games", name:"2.180 Diamond", price:415000,gameId:true },
-    // PUBG Mobile
-    { sku:"pubg-60",   brand:"PUBG Mobile", category:"Games", name:"60 UC",    price:15000, gameId:true },
-    { sku:"pubg-120",  brand:"PUBG Mobile", category:"Games", name:"120 UC",   price:28000, gameId:true },
-    { sku:"pubg-325",  brand:"PUBG Mobile", category:"Games", name:"325 UC",   price:73000, gameId:true },
-    { sku:"pubg-660",  brand:"PUBG Mobile", category:"Games", name:"660 UC",   price:145000,gameId:true },
-    { sku:"pubg-1800", brand:"PUBG Mobile", category:"Games", name:"1.800 UC", price:388000,gameId:true },
-    // Genshin Impact
-    { sku:"gi-60",   brand:"Genshin Impact", category:"Games", name:"60 Primogems",    price:15000, gameId:true },
-    { sku:"gi-300",  brand:"Genshin Impact", category:"Games", name:"300 Primogems",   price:73000, gameId:true },
-    { sku:"gi-980",  brand:"Genshin Impact", category:"Games", name:"980 Primogems",   price:235000,gameId:true },
-    { sku:"gi-1980", brand:"Genshin Impact", category:"Games", name:"1.980 Primogems", price:470000,gameId:true },
-    // Honkai Star Rail
-    { sku:"hsr-60",  brand:"Honkai Star Rail", category:"Games", name:"60 Stellar Jade",   price:15000, gameId:true },
-    { sku:"hsr-300", brand:"Honkai Star Rail", category:"Games", name:"300 Stellar Jade",  price:73000, gameId:true },
-    { sku:"hsr-980", brand:"Honkai Star Rail", category:"Games", name:"980 Stellar Jade",  price:235000,gameId:true },
-    // Valorant
-    { sku:"val-420",  brand:"Valorant", category:"Games", name:"420 VP",  price:73000, gameId:true },
-    { sku:"val-1000", brand:"Valorant", category:"Games", name:"1.000 VP", price:168000,gameId:true },
-    { sku:"val-2050", brand:"Valorant", category:"Games", name:"2.050 VP", price:338000,gameId:true },
-  ];
+  let allPulsaProducts = [];
+  let activeGame = "all";
+  let selectedProd = null;
 
   // ─── Format Rupiah ────────────────────────────────────────────
   function fmt(n) { return "Rp " + Number(n).toLocaleString("id-ID"); }
@@ -773,11 +749,85 @@
     setTimeout(() => t.classList.remove("show"), dur);
   }
 
-  // ─── Load produk game (statis) ────────────────────────────────
-  function loadGameProducts() {
-    allGameProducts = STATIC_GAMES;
-    document.getElementById("gameState").style.display = "none";
-    renderGameProducts();
+  // ─── Navigasi antar sub-halaman ───────────────────────────────
+  function showPage(id) {
+    document.querySelectorAll(".subpage").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    window.scrollTo(0, 0);
+    if (id === "pageGame" && allGameProducts.length === 0) loadGameProducts();
+    if (id === "pagePulsa" && allPulsaProducts.length === 0) loadPulsaProducts();
+    if (id === "pagePLN") loadPLNProducts();
+  }
+
+  // ─── Load semua produk dari Digiflazz API ─────────────────────
+  async function fetchProducts(type) {
+    const res = await fetch(`/api/digiflazz-products?type=${type}`);
+    if (!res.ok) throw new Error("Gagal memuat produk");
+    return await res.json();
+  }
+
+  // ─── Load produk game dari API ────────────────────────────────
+  async function loadGameProducts() {
+    try {
+      document.getElementById("gameState").innerHTML = '<div class="icon">🎮</div><div>Memuat produk game...</div>';
+      document.getElementById("gameState").style.display = "block";
+      const products = await fetchProducts("game");
+      allGameProducts = products;
+      document.getElementById("gameState").style.display = "none";
+      renderGameProducts();
+    } catch(e) {
+      document.getElementById("gameState").innerHTML = '<div class="icon">❌</div><div>Gagal memuat produk. Coba refresh halaman.</div>';
+    }
+  }
+
+  // ─── Load produk pulsa & data dari API ───────────────────────
+  async function loadPulsaProducts() {
+    try {
+      const [pulsa, data] = await Promise.all([
+        fetchProducts("pulsa"),
+        fetchProducts("data")
+      ]);
+      allPulsaProducts = [...pulsa, ...data];
+      renderNominal();
+    } catch(e) {
+      showToast("Gagal memuat produk pulsa.");
+    }
+  }
+
+  // ─── Load produk PLN dari API ─────────────────────────────────
+  async function loadPLNProducts() {
+    const grid  = document.getElementById("plnGrid");
+    const state = document.getElementById("plnState");
+    state.innerHTML = '<div class="icon">⚡</div><div>Memuat produk PLN...</div>';
+    state.style.display = "block";
+    grid.innerHTML = "";
+    try {
+      const products = await fetchProducts("pln");
+      if (!products.length) {
+        state.innerHTML = '<div class="icon">⚡</div><div>Produk PLN belum tersedia.</div>';
+        return;
+      }
+      state.style.display = "none";
+      grid.innerHTML = products.map(p => `
+        <div class="prod-card" data-sku="${p.sku}">
+          <div class="prod-card-header">
+            <span class="prod-brand">${p.brand || "PLN"}</span>
+            <span class="prod-cat">${p.category}</span>
+          </div>
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-price">${fmt(p.price)}</div>
+          <button class="btn-beli">⚡ Beli</button>
+        </div>
+      `).join("");
+      grid.querySelectorAll(".prod-card").forEach(card => {
+        card.querySelector(".btn-beli").addEventListener("click", () => {
+          const prod = products.find(p => p.sku === card.dataset.sku);
+          if (prod) openTopupModal({...prod, isPLN: true});
+        });
+      });
+    } catch(e) {
+      state.innerHTML = '<div class="icon">❌</div><div>Gagal memuat produk PLN.</div>';
+    }
   }
 
   // ─── Render grid game ─────────────────────────────────────────
@@ -937,121 +987,47 @@
     }
   });
 
-  // ─── Isi nomor WA admin dari env / fallback ───────────────────
-  // Nomor WA admin diisi dari halaman index (window.ADMIN_WA) atau hardcode
-  // Kamu bisa ganti nomor di sini setelah deploy
-  // ─── PULSA & DATA — langsung ke Cloudflare Worker ────────────
-  const WORKER_URL    = "https://proxy.enuyrasa.my.id/topup-pulsa";
-  const WORKER_SECRET = "Ucup050205";
-
-  // Katalog nominal per operator & jenis
-  // SKU menggunakan kode Digiflazz resmi (buyer_sku_code dari price list)
-  // Harga sudah termasuk margin tipis — update sesuai harga terkini dari panel Digiflazz
-  const PULSA_CATALOG = {
-    Telkomsel: {
-      pulsa: [
-        { sku:"s5",   label:"Rp 5.000",   price:6000  },
-        { sku:"s10",  label:"Rp 10.000",  price:11000 },
-        { sku:"s15",  label:"Rp 15.000",  price:16000 },
-        { sku:"s20",  label:"Rp 20.000",  price:21000 },
-        { sku:"s25",  label:"Rp 25.000",  price:26000 },
-        { sku:"s30",  label:"Rp 30.000",  price:31000 },
-        { sku:"s50",  label:"Rp 50.000",  price:52000 },
-        { sku:"s100", label:"Rp 100.000", price:102000 },
-      ],
-      data: [
-        { sku:"tsel1gb",   label:"1 GB\n1 Hari",    price:16000 },
-        { sku:"tsel3gb7",  label:"3 GB\n7 Hari",    price:29000 },
-        { sku:"tsel5gb30", label:"5 GB\n30 Hari",   price:47000 },
-        { sku:"tsel10gb",  label:"10 GB\n30 Hari",  price:78000 },
-        { sku:"tsel20gb",  label:"20 GB\n30 Hari",  price:145000 },
-      ]
-    },
-    XL: {
-      pulsa: [
-        { sku:"xl5",   label:"Rp 5.000",   price:6000  },
-        { sku:"xl10",  label:"Rp 10.000",  price:11500 },
-        { sku:"xl20",  label:"Rp 20.000",  price:21000 },
-        { sku:"xl50",  label:"Rp 50.000",  price:51500 },
-        { sku:"xl100", label:"Rp 100.000", price:101500 },
-      ],
-      data: [
-        { sku:"xl1gb7",   label:"1 GB\n7 Hari",    price:14000 },
-        { sku:"xl5gb30",  label:"5 GB\n30 Hari",   price:43000 },
-        { sku:"xl10gb30", label:"10 GB\n30 Hari",  price:72000 },
-        { sku:"xl15gb30", label:"15 GB\n30 Hari",  price:98000 },
-      ]
-    },
-    Indosat: {
-      pulsa: [
-        { sku:"im5",   label:"Rp 5.000",   price:6000  },
-        { sku:"im10",  label:"Rp 10.000",  price:11500 },
-        { sku:"im20",  label:"Rp 20.000",  price:21000 },
-        { sku:"im50",  label:"Rp 50.000",  price:51500 },
-        { sku:"im100", label:"Rp 100.000", price:101500 },
-      ],
-      data: [
-        { sku:"im1gb7",   label:"1 GB\n7 Hari",   price:14000 },
-        { sku:"im5gb30",  label:"5 GB\n30 Hari",  price:42000 },
-        { sku:"im10gb30", label:"10 GB\n30 Hari", price:70000 },
-        { sku:"im15gb30", label:"15 GB\n30 Hari", price:95000 },
-      ]
-    },
-    Tri: {
-      pulsa: [
-        { sku:"tri5",   label:"Rp 5.000",   price:6000  },
-        { sku:"tri10",  label:"Rp 10.000",  price:11500 },
-        { sku:"tri20",  label:"Rp 20.000",  price:21000 },
-        { sku:"tri50",  label:"Rp 50.000",  price:51500 },
-        { sku:"tri100", label:"Rp 100.000", price:101500 },
-      ],
-      data: [
-        { sku:"tri1gb7",   label:"1 GB\n7 Hari",   price:13000 },
-        { sku:"tri5gb30",  label:"5 GB\n30 Hari",  price:40000 },
-        { sku:"tri10gb30", label:"10 GB\n30 Hari", price:68000 },
-        { sku:"tri15gb30", label:"15 GB\n30 Hari", price:88000 },
-      ]
-    },
-    Smartfren: {
-      pulsa: [
-        { sku:"sf10",  label:"Rp 10.000",  price:11500 },
-        { sku:"sf20",  label:"Rp 20.000",  price:21000 },
-        { sku:"sf50",  label:"Rp 50.000",  price:51500 },
-        { sku:"sf100", label:"Rp 100.000", price:101500 },
-      ],
-      data: [
-        { sku:"sf1gb7",  label:"1 GB\n7 Hari",   price:13000 },
-        { sku:"sf5gb30", label:"5 GB\n30 Hari",  price:40000 },
-        { sku:"sf10gb",  label:"10 GB\n30 Hari", price:68000 },
-      ]
-    },
-    "By.U": {
-      pulsa: [
-        { sku:"byu10",  label:"Rp 10.000",  price:11500 },
-        { sku:"byu20",  label:"Rp 20.000",  price:21000 },
-        { sku:"byu50",  label:"Rp 50.000",  price:51500 },
-      ],
-      data: [
-        { sku:"byu1gb7",  label:"1 GB\n7 Hari",  price:13000 },
-        { sku:"byu5gb30", label:"5 GB\n30 Hari", price:40000 },
-      ]
-    }
-  };
-
-  let pulsaOp      = "Telkomsel";
+  // ─── PULSA & DATA ─────────────────────────────────────────────
+  let pulsaOp      = "TELKOMSEL";
   let pulsaType    = "pulsa";
   let pulsaSelected = null;
 
+  // Map operator button → brand name di Digiflazz
+  const OP_MAP = {
+    "Telkomsel": "TELKOMSEL",
+    "XL":        ["XL", "AXIS"],
+    "Indosat":   "INDOSAT",
+    "Tri":       "TRI",
+    "Smartfren": "SMARTFREN",
+    "By.U":      "by.U"
+  };
+
   function renderNominal() {
-    const grid   = document.getElementById("nominalGrid");
-    const items  = (PULSA_CATALOG[pulsaOp] || {})[pulsaType] || [];
+    const grid = document.getElementById("nominalGrid");
     pulsaSelected = null;
     document.getElementById("pulsaPriceBox").style.display = "none";
     document.getElementById("btnBeliPulsa").disabled = true;
 
+    // Filter produk sesuai operator & jenis
+    const opKey   = document.querySelector("#operatorGrid .op-btn.active")?.dataset.op || "Telkomsel";
+    const brands  = OP_MAP[opKey];
+    const brandArr = Array.isArray(brands) ? brands : [brands];
+    const cat     = pulsaType === "pulsa" ? "Pulsa" : "Data";
+
+    const items = allPulsaProducts.filter(p => {
+      const brandMatch = brandArr.some(b => p.brand && p.brand.toUpperCase() === b.toUpperCase());
+      const catMatch   = pulsaType === "pulsa" ? p.category === "Pulsa" : p.category !== "Pulsa";
+      return brandMatch && catMatch;
+    });
+
+    if (!items.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--gray);font-size:0.82rem;padding:20px 0;">Produk ${cat} ${opKey} tidak tersedia.</div>`;
+      return;
+    }
+
     grid.innerHTML = items.map((item, i) => `
       <button class="nominal-btn" data-idx="${i}">
-        ${item.label.replace("\n","<br>")}
+        ${item.name.replace(item.brand || "", "").replace(/^\s*[-–]\s*/, "").trim() || item.name}
         <span class="nom-label">${fmt(item.price)}</span>
       </button>
     `).join("");
@@ -1073,7 +1049,6 @@
     btn.addEventListener("click", () => {
       document.querySelectorAll("#operatorGrid .op-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      pulsaOp = btn.dataset.op;
       renderNominal();
     });
   });
@@ -1091,9 +1066,6 @@
     pulsaType = "data";
     renderNominal();
   });
-
-  // Init nominal
-  renderNominal();
 
   // Submit order pulsa → simpan ke DB dulu, tampilkan info bayar
   document.getElementById("btnBeliPulsa").addEventListener("click", async () => {
@@ -1118,9 +1090,9 @@
           targetNumber: target,
           sku:          pulsaSelected.sku,
           price:        pulsaSelected.price,
-          operator:     pulsaOp,
+          operator:     pulsaSelected.brand,
           type:         pulsaType,
-          notes:        `${pulsaOp} ${pulsaType} ${pulsaSelected.label}`
+          notes:        pulsaSelected.name
         })
       });
       const data = await res.json();
