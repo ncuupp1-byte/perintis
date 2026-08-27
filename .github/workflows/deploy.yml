@@ -21,8 +21,8 @@ jobs:
           local-dir: ./
           server-dir: /public_html/
           exclude: |
-            **/.git*
-            **/.git*/**
+            **/.git/**
+            **/.git
             **/node_modules/**
             README-deploy.md
             *.xlsx
