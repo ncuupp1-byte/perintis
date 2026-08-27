@@ -39,35 +39,38 @@ if (!$raw) json_response(['error' => 'Gagal menghubungi Digiflazz.'], 502);
 $json = json_decode($raw, true);
 if (empty($json['data'])) json_response(['error' => 'Digiflazz tidak mengembalikan data.'], 502);
 
-$PULSA_DATA = ['Pulsa', 'Data', 'Paket Data', 'Paket Telepon'];
-$GAME_CATS  = ['Games', 'Game', 'Voucher Game', 'Hiburan', 'E-Money'];
+// ── Whitelist SKU aktif dari akun Digiflazz buyer ─────────────────
+$ACTIVE_SKUS = [
+    'if2','if3g30d','if5g30d',
+    'pln100','pln1000','pln20','pln50',
+    'pre33585845','pre33585846','pre33585847','pre33585848','pre33585849','pre33585851','pre33585853',
+    'pre33585868','pre33585869','pre33585871','pre33585873','pre33585874','pre33585875',
+    'pre33585881','pre33585882','pre33585883','pre33585884','pre33585885','pre33585886',
+    'pre33586243','pre33586244','pre33586245','pre33586246','pre33586247','pre33586248',
+    'pre33586262','pre33586263','pre33586264','pre33586265','pre33586266','pre33586267',
+    'pre33586332','pre33586333','pre33586334','pre33586335','pre33586336','pre33586337',
+    'pre33586342','pre33586343','pre33586344','pre33586345','pre33586346','pre33586347',
+    'pre33587621','pre33587622','pre33587623','pre33587624','pre33587625','pre33587626',
+    'pre33587627','pre33587628','pre33587629','pre33587630','pre33587631','pre33587632',
+    'pre33587633','pre33587634','pre33587635','pre33587636','pre33587637','pre33587638',
+    'pre33587691','pre33587692','pre33587693','pre33587694','pre33587695','pre33587696',
+    'pre33587697','pre33587698','pre33587699','pre33587700','pre33587701','pre33587702',
+    'pre33587787','pre33587788','pre33587789',
+    'smdu1','smdu2','vflexs','yellow1'
+];
+
 $PLN_CATS   = ['PLN', 'Token Listrik', 'Listrik'];
-$ALL_CATS   = [...$PULSA_DATA, ...$GAME_CATS, ...$PLN_CATS];
 $typeFilter = strtolower($_GET['type'] ?? 'all');
 
-// Filter: seller_product_status true = produk yang diaktifkan di akun reseller
-// buyer_product_status true = produk aktif secara global di Digiflazz
-// Untuk reseller: tampilkan yang seller_product_status = true
-$items = array_filter($json['data'], function($p) {
-    // seller_product_status bisa berupa boolean true atau string "true"
-    $seller = $p['seller_product_status'] ?? false;
-    return $seller === true || $seller === 1 || $seller === "true";
-});
-
-// Fallback: kalau tidak ada seller aktif, pakai buyer_product_status
-if (empty($items)) {
-    $items = array_filter($json['data'], function($p) {
-        $buyer = $p['buyer_product_status'] ?? false;
-        return $buyer === true || $buyer === 1 || $buyer === "true";
-    });
-}
+// Filter hanya SKU yang diaktifkan
+$allActive = array_filter($json['data'], fn($p) => in_array($p['buyer_sku_code'], $ACTIVE_SKUS, true));
 
 $items = match ($typeFilter) {
-    'pulsa' => array_filter($items, fn($p) => $p['category'] === 'Pulsa'),
-    'data'  => array_filter($items, fn($p) => in_array($p['category'], ['Data', 'Paket Data', 'Paket Telepon'], true)),
-    'game'  => array_filter($items, fn($p) => in_array($p['category'], $GAME_CATS, true)),
-    'pln'   => array_filter($items, fn($p) => in_array($p['category'], $PLN_CATS, true)),
-    default => array_filter($items, fn($p) => in_array($p['category'], $ALL_CATS, true)),
+    'pulsa' => array_filter($allActive, fn($p) => $p['category'] === 'Pulsa'),
+    'data'  => array_filter($allActive, fn($p) => in_array($p['category'], ['Data', 'Paket Data', 'Paket Telepon'], true)),
+    'game'  => array_filter($allActive, fn($p) => $p['category'] === 'Games'),
+    'pln'   => array_filter($allActive, fn($p) => in_array($p['category'], $PLN_CATS, true)),
+    default => $allActive,
 };
 
 $products = array_values(array_map(fn($p) => [

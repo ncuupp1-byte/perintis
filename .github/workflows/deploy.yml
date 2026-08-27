@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: /public_html/
-          dangerous-clean-slate: true
+          state-name: .ftp-deploy-sync-state.json
           exclude: |
             **/.git/**
             **/.git
@@ -29,3 +29,4 @@ jobs:
             *.xlsx
             *.csv
             .github/**
+            .ftp-deploy-sync-state.json
