@@ -45,8 +45,22 @@ $PLN_CATS   = ['PLN', 'Token Listrik', 'Listrik'];
 $ALL_CATS   = [...$PULSA_DATA, ...$GAME_CATS, ...$PLN_CATS];
 $typeFilter = strtolower($_GET['type'] ?? 'all');
 
-// Tampilkan semua produk yang aktif (buyer_product_status)
-$items = array_filter($json['data'], fn($p) => $p['buyer_product_status'] === true);
+// Filter: seller_product_status true = produk yang diaktifkan di akun reseller
+// buyer_product_status true = produk aktif secara global di Digiflazz
+// Untuk reseller: tampilkan yang seller_product_status = true
+$items = array_filter($json['data'], function($p) {
+    // seller_product_status bisa berupa boolean true atau string "true"
+    $seller = $p['seller_product_status'] ?? false;
+    return $seller === true || $seller === 1 || $seller === "true";
+});
+
+// Fallback: kalau tidak ada seller aktif, pakai buyer_product_status
+if (empty($items)) {
+    $items = array_filter($json['data'], function($p) {
+        $buyer = $p['buyer_product_status'] ?? false;
+        return $buyer === true || $buyer === 1 || $buyer === "true";
+    });
+}
 
 $items = match ($typeFilter) {
     'pulsa' => array_filter($items, fn($p) => $p['category'] === 'Pulsa'),
