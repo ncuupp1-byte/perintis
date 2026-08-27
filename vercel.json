@@ -1,6 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/oleh-oleh", "destination": "/oleh-oleh.html" },
-    { "source": "/digital",   "destination": "/digital.html" }
-  ]
-}

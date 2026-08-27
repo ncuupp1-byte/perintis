@@ -1,0 +1,60 @@
+# .htaccess — Dapur Tradisional Ibu Enuy
+# Upload ke /public_html/ di cPanel Domainesia
+
+Options -Indexes
+Options +FollowSymLinks
+
+# ─── PHP Configuration ────────────────────────────────────────
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 60
+php_value memory_limit 128M
+
+# ─── Environment Variables (opsional, override config.php) ────────────────────
+# Nilai DB sudah diisi langsung di config.php
+# Uncomment baris di bawah hanya jika ingin override tanpa edit config.php
+
+# SetEnv ADMIN_TOKEN       ganti-token-rahasia
+# SetEnv SUPER_ADMIN_TOKEN
+# SetEnv FONNTE_TOKEN      isi-token-fonnte
+# SetEnv ADMIN_WA          6281234567890
+# SetEnv DIGIFLAZZ_USERNAME  isi-username
+# SetEnv DIGIFLAZZ_API_KEY   isi-api-key
+# SetEnv DIGIFLAZZ_TESTING   false
+# SetEnv MARKUP_PERCENT  5
+# SetEnv MARKUP_FLAT     0
+# SetEnv MARKUP_ROUND    100
+# SetEnv APIGAMES_MERCHANT_ID
+# SetEnv APIGAMES_SECRET_KEY
+
+# ─── Rewrite Engine ───────────────────────────────────────────
+RewriteEngine On
+
+# Force HTTPS (aktifkan setelah SSL terpasang di cPanel)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ─── API: /api/xxx → /api/xxx.php (tanpa .php di URL) ─────────
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/api/([a-z0-9_-]+)$ [NC]
+RewriteRule ^api/([a-z0-9_-]+)$ api/$1.php [L,QSA]
+
+# ─── URL bersih: /admin → admin.html ──────────────────────────
+RewriteRule ^admin/?$ admin.html [L]
+RewriteRule ^digital/?$ digital.html [L]
+RewriteRule ^oleh-oleh/?$ oleh-oleh.html [L]
+
+# ─── Security: blokir akses langsung ke config.php saja ───────
+RewriteCond %{REQUEST_URI} ^/config\.php$ [NC]
+RewriteRule ^ - [F,L]
+
+# ─── CORS Header untuk API ─────────────────────────────────────
+<FilesMatch "\.php$">
+  Header always set Access-Control-Allow-Origin "*"
+  Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  Header always set Access-Control-Allow-Headers "Content-Type, X-Admin-Token"
+</FilesMatch>
+
+# ─── Error Handling ───────────────────────────────────────────
+ErrorDocument 404 /index.html

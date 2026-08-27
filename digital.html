@@ -1126,7 +1126,10 @@
       const data = await res.json();
 
       if (!data.success) {
-        showToast(data.error || "Gagal membuat order. Coba lagi.");
+        // Tampilkan pesan error spesifik dari server untuk memudahkan debug
+        const errMsg = data.error || "Gagal membuat order. Coba lagi.";
+        console.error("[digital-order] Server error:", data);
+        showToast(errMsg, 5000);
         return;
       }
 

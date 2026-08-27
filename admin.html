@@ -728,7 +728,10 @@
           <div class="order-actions">
             <button class="btn-confirm" onclick="confirmOrder(${o.id})">✅ Konfirmasi Bayar</button>
             <button class="btn-cancel-order" onclick="cancelOrder(${o.id})">❌ Batalkan</button>
-          </div>` : ""}
+          </div>` : `
+          <div class="order-actions">
+            <button onclick="deleteOrder(${o.id})" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;">🗑️ Hapus Log</button>
+          </div>`}
         `;
         orderList.appendChild(div);
       });
@@ -837,7 +840,10 @@
               <button onclick="batalDigital(${o.id})" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:8px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;">
                 ✕ Batal
               </button>
-            </div>` : ""}
+            </div>` : `
+            <div style="margin-top:8px;">
+              <button onclick="deleteDigital(${o.id})" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:6px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;">🗑️ Hapus Log</button>
+            </div>`}
           </div>
         `;
       }).join("");
@@ -892,6 +898,36 @@
       });
       const data = await res.json();
       alert(data.success ? "Order dibatalkan." : data.error);
+      loadDigitalOrders();
+    } catch (err) { alert("Gagal: " + err.message); }
+  }
+
+  // Hapus log pesanan jajanan
+  async function deleteOrder(orderId) {
+    if (!confirm(`Hapus log Pesanan #${orderId} dari daftar? Data akan hilang permanen.`)) return;
+    try {
+      const res  = await fetch("/api/orders", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "x-admin-token": adminToken },
+        body:    JSON.stringify({ action: "delete", orderId })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Gagal menghapus."); return; }
+      loadOrders();
+    } catch (err) { alert("Gagal: " + err.message); }
+  }
+
+  // Hapus log order digital
+  async function deleteDigital(orderId) {
+    if (!confirm(`Hapus log transaksi digital #${orderId}? Data akan hilang permanen.`)) return;
+    try {
+      const res  = await fetch("/api/digital-orders", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "x-admin-token": adminToken },
+        body:    JSON.stringify({ action: "delete", orderId })
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Gagal menghapus."); return; }
       loadDigitalOrders();
     } catch (err) { alert("Gagal: " + err.message); }
   }
