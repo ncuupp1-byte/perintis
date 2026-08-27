@@ -45,8 +45,8 @@ $PLN_CATS   = ['PLN', 'Token Listrik', 'Listrik'];
 $ALL_CATS   = [...$PULSA_DATA, ...$GAME_CATS, ...$PLN_CATS];
 $typeFilter = strtolower($_GET['type'] ?? 'all');
 
-// Tampilkan semua produk yang diaktifkan seller (tidak filter buyer_product_status)
-$items = array_filter($json['data'], fn($p) => $p['seller_product_status'] === true);
+// Tampilkan semua produk yang aktif (buyer_product_status)
+$items = array_filter($json['data'], fn($p) => $p['buyer_product_status'] === true);
 
 $items = match ($typeFilter) {
     'pulsa' => array_filter($items, fn($p) => $p['category'] === 'Pulsa'),
