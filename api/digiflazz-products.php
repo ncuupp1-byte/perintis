@@ -43,7 +43,7 @@ $PULSA_DATA = ['Pulsa', 'Data', 'Paket Data', 'Paket Telepon'];
 $GAME_CATS  = ['Games', 'Game', 'Voucher Game', 'Hiburan', 'E-Money'];
 $typeFilter = strtolower($_GET['type'] ?? 'all');
 
-$items = array_filter($json['data'], fn($p) => $p['buyer_product_status'] === true);
+$items = array_filter($json['data'], fn($p) => $p['seller_product_status'] === true && $p['buyer_product_status'] === true);
 
 $items = match ($typeFilter) {
     'pulsa' => array_filter($items, fn($p) => $p['category'] === 'Pulsa'),
