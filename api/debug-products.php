@@ -19,11 +19,17 @@ curl_close($ch);
 $json = json_decode($raw, true);
 $data = $json['data'] ?? [];
 
-// Ambil 3 produk pertama dan tampilkan SEMUA field-nya
-$sample = array_slice($data, 0, 3);
+// Kumpulkan semua kategori unik + seller_product_status
+$categories = [];
+foreach ($data as $p) {
+    $cat = $p['category'] ?? 'unknown';
+    $seller = $p['seller_product_status'] ? 'aktif' : 'nonaktif';
+    if (!isset($categories[$cat])) $categories[$cat] = ['aktif' => 0, 'nonaktif' => 0];
+    $categories[$cat][$seller]++;
+}
 
 header('Content-Type: application/json');
 echo json_encode([
-    'total' => count($data),
-    'sample_fields' => $sample
+    'total_semua' => count($data),
+    'kategori' => $categories
 ], JSON_PRETTY_PRINT);
