@@ -41,15 +41,19 @@ if (empty($json['data'])) json_response(['error' => 'Digiflazz tidak mengembalik
 
 $PULSA_DATA = ['Pulsa', 'Data', 'Paket Data', 'Paket Telepon'];
 $GAME_CATS  = ['Games', 'Game', 'Voucher Game', 'Hiburan', 'E-Money'];
+$PLN_CATS   = ['PLN', 'Token Listrik', 'Listrik'];
+$ALL_CATS   = [...$PULSA_DATA, ...$GAME_CATS, ...$PLN_CATS];
 $typeFilter = strtolower($_GET['type'] ?? 'all');
 
-$items = array_filter($json['data'], fn($p) => $p['seller_product_status'] === true && $p['buyer_product_status'] === true);
+// Tampilkan semua produk yang diaktifkan seller (tidak filter buyer_product_status)
+$items = array_filter($json['data'], fn($p) => $p['seller_product_status'] === true);
 
 $items = match ($typeFilter) {
     'pulsa' => array_filter($items, fn($p) => $p['category'] === 'Pulsa'),
     'data'  => array_filter($items, fn($p) => in_array($p['category'], ['Data', 'Paket Data', 'Paket Telepon'], true)),
     'game'  => array_filter($items, fn($p) => in_array($p['category'], $GAME_CATS, true)),
-    default => array_filter($items, fn($p) => in_array($p['category'], [...$PULSA_DATA, ...$GAME_CATS], true)),
+    'pln'   => array_filter($items, fn($p) => in_array($p['category'], $PLN_CATS, true)),
+    default => array_filter($items, fn($p) => in_array($p['category'], $ALL_CATS, true)),
 };
 
 $products = array_values(array_map(fn($p) => [
@@ -66,5 +70,5 @@ $products = array_values(array_map(fn($p) => [
 
 usort($products, fn($a, $b) => strcmp($a['brand'], $b['brand']) ?: $a['price'] - $b['price']);
 
-header('Cache-Control: public, max-age=600');
+header('Cache-Control: no-store, no-cache, must-revalidate');
 json_response($products);
